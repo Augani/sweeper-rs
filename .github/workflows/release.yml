@@ -133,6 +133,10 @@ jobs:
           </plist>
           EOF
 
+      - name: Sign app (ad-hoc)
+        run: |
+          codesign --force --deep --sign - "Sweeper.app"
+
       - name: Package
         run: |
           ARCH=$(echo ${{ matrix.target }} | cut -d'-' -f1)
@@ -241,7 +245,9 @@ jobs:
             **macOS:**
             ```bash
             unzip sweeper-macos-*.zip
-            # Move Sweeper.app to /Applications
+            xattr -cr Sweeper.app  # Clear quarantine attribute
+            open Sweeper.app
+            # Or move to /Applications first
             ```
 
             **Windows:**
