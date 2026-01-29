@@ -282,6 +282,17 @@ impl SweeperApp {
                 app.items.retain(|i| !deleted_paths.contains(&i.path));
                 app.selected.clear();
                 app.is_deleting = false;
+
+                // Recalculate stats based on remaining items
+                app.stats.total_items = app.items.len() as u64;
+                app.stats.total_size = app.items.iter().map(|i| i.size).sum();
+                app.stats.items_by_category.clear();
+                app.stats.size_by_category.clear();
+                for item in &app.items {
+                    *app.stats.items_by_category.entry(item.category).or_insert(0) += 1;
+                    *app.stats.size_by_category.entry(item.category).or_insert(0) += item.size;
+                }
+
                 cx.notify();
             });
         })
