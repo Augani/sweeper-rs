@@ -150,7 +150,12 @@ jobs:
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          codesign --force --deep --sign "Developer ID Application: $(security find-identity -v -p codesigning build.keychain | grep "Developer ID Application" | head -1 | sed 's/.*"\(.*\)".*/\1/')" --options runtime "Sweeper.app"
+          # List available identities for debugging
+          security find-identity -v -p codesigning build.keychain
+          # Sign with the Developer ID Application certificate
+          IDENTITY=$(security find-identity -v -p codesigning build.keychain | grep "Developer ID Application" | head -1 | awk -F'"' '{print $2}')
+          echo "Signing with identity: $IDENTITY"
+          codesign --force --deep --sign "$IDENTITY" --options runtime "Sweeper.app"
 
       - name: Notarize app
         env:
