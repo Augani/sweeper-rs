@@ -360,7 +360,7 @@ impl SweeperApp {
                                             .text_color(theme.tokens.foreground)
                                             .child("Sweeper"),
                                     )
-                                    .child(Badge::new("v0.2.0").variant(BadgeVariant::Secondary)),
+                                    .child(Badge::new(format!("v{}", env!("CARGO_PKG_VERSION"))).variant(BadgeVariant::Secondary)),
                             )
                             .child(
                                 div()
