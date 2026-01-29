@@ -72,19 +72,19 @@ jobs:
 
   build-macos:
     name: Build macOS
-    runs-on: macos-latest
     strategy:
       matrix:
-        target:
-          - x86_64-apple-darwin
-          - aarch64-apple-darwin
+        include:
+          - target: x86_64-apple-darwin
+            os: macos-13
+          - target: aarch64-apple-darwin
+            os: macos-14
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
 
       - name: Cache cargo
         uses: actions/cache@v4
