@@ -32,6 +32,7 @@ impl FileCategory {
         }
     }
 
+    #[allow(dead_code)]
     pub fn icon(&self) -> &'static str {
         match self {
             Self::DevArtifact => "code",
@@ -64,6 +65,7 @@ impl FileCategory {
         }
     }
 
+    #[allow(dead_code)]
     pub fn description(&self) -> &'static str {
         match self {
             Self::DevArtifact => "Build outputs and dependencies (node_modules, target/, build/)",
@@ -327,6 +329,7 @@ impl CategoryPatterns {
         30
     }
 
+    #[allow(dead_code)]
     pub fn large_file_threshold() -> u64 {
         100 * 1024 * 1024 // 100MB
     }

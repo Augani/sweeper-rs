@@ -84,7 +84,7 @@ impl SweeperApp {
         let config = Config::load();
         let scanner = Arc::new(Scanner::new(config.clone()));
 
-        cx.spawn(async move |this, mut cx| loop {
+        cx.spawn(async move |this, cx| loop {
             cx.background_executor()
                 .timer(Duration::from_millis(100))
                 .await;

@@ -148,6 +148,7 @@ impl Config {
         Self::default()
     }
 
+    #[allow(dead_code)]
     pub fn save(&self) -> Result<(), std::io::Error> {
         let config_path = Self::config_path();
         if let Some(parent) = config_path.parent() {

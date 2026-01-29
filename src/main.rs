@@ -59,7 +59,7 @@ fn main() {
                     })),
                     ..Default::default()
                 },
-                |_, cx| cx.new(|cx| SweeperApp::new(cx)),
+                |_, cx| cx.new(SweeperApp::new),
             );
 
             if let Err(e) = window_result {

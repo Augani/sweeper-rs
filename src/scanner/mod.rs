@@ -11,6 +11,7 @@ use std::sync::{Arc, Mutex};
 use walkdir::WalkDir;
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct ScannedItem {
     pub path: PathBuf,
     pub name: String,
@@ -157,7 +158,7 @@ impl Scanner {
                             let modified = meta
                                 .as_ref()
                                 .and_then(|m| m.modified().ok())
-                                .map(|t| DateTime::<Utc>::from(t))
+                                .map(DateTime::<Utc>::from)
                                 .unwrap_or_else(Utc::now);
 
                             let item = ScannedItem {
@@ -224,7 +225,7 @@ impl Scanner {
                         let modified = meta
                             .as_ref()
                             .and_then(|m| m.modified().ok())
-                            .map(|t| DateTime::<Utc>::from(t))
+                            .map(DateTime::<Utc>::from)
                             .unwrap_or_else(Utc::now);
 
                         let item = ScannedItem {
@@ -321,7 +322,7 @@ impl Scanner {
                                 let modified = meta
                                     .modified()
                                     .ok()
-                                    .map(|t| DateTime::<Utc>::from(t))
+                                    .map(DateTime::<Utc>::from)
                                     .unwrap_or_else(Utc::now);
 
                                 let category = if is_temp {
@@ -359,7 +360,7 @@ impl Scanner {
                     let modified = meta
                         .modified()
                         .ok()
-                        .map(|t| DateTime::<Utc>::from(t))
+                        .map(DateTime::<Utc>::from)
                         .unwrap_or_else(Utc::now);
 
                     let age_days = (Utc::now() - modified).num_days() as u64;
@@ -420,7 +421,7 @@ impl Scanner {
                 let modified = meta
                     .modified()
                     .ok()
-                    .map(|t| DateTime::<Utc>::from(t))
+                    .map(DateTime::<Utc>::from)
                     .unwrap_or_else(Utc::now);
 
                 if modified < threshold {
