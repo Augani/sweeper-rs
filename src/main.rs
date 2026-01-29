@@ -12,6 +12,21 @@ struct Assets {
     base: PathBuf,
 }
 
+impl Assets {
+    fn new() -> Self {
+        let base = if cfg!(debug_assertions) {
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        } else {
+            std::env::current_exe()
+                .ok()
+                .and_then(|exe| exe.parent().map(|p| p.to_path_buf()))
+                .and_then(|bin_dir| bin_dir.parent().map(|p| p.join("Resources")))
+                .unwrap_or_else(|| PathBuf::from("."))
+        };
+        Self { base }
+    }
+}
+
 impl gpui::AssetSource for Assets {
     fn load(&self, path: &str) -> Result<Option<std::borrow::Cow<'static, [u8]>>> {
         std::fs::read(self.base.join(path))
@@ -39,9 +54,7 @@ fn main() {
     env_logger::init();
 
     Application::new()
-        .with_assets(Assets {
-            base: PathBuf::from(env!("CARGO_MANIFEST_DIR")),
-        })
+        .with_assets(Assets::new())
         .run(|cx| {
             adabraka_ui::init(cx);
             adabraka_ui::set_icon_base_path("assets/icons");
