@@ -1,6 +1,6 @@
 use crate::categories::FileCategory;
 use crate::config::Config;
-use crate::scanner::{ScannedItem, Scanner, ScanStats};
+use crate::scanner::{ScanStats, ScannedItem, Scanner};
 use adabraka_ui::components::button::{Button, ButtonSize, ButtonVariant};
 use adabraka_ui::components::checkbox::Checkbox;
 use adabraka_ui::components::icon::Icon;
@@ -84,36 +84,34 @@ impl SweeperApp {
         let config = Config::load();
         let scanner = Arc::new(Scanner::new(config.clone()));
 
-        cx.spawn(async move |this, mut cx| {
-            loop {
-                cx.background_executor()
-                    .timer(Duration::from_millis(100))
-                    .await;
+        cx.spawn(async move |this, mut cx| loop {
+            cx.background_executor()
+                .timer(Duration::from_millis(100))
+                .await;
 
-                let should_continue = this
-                    .update(cx, |app, cx| {
-                        if app.scanner.is_scanning() {
-                            app.is_scanning = true;
-                            let files_scanned = app.scanner.files_scanned();
-                            app.scan_progress = format!(
-                                "{} paths checked • {}",
-                                files_scanned,
-                                app.scanner.current_path()
-                            );
-                            cx.notify();
-                        } else if app.is_scanning {
-                            app.is_scanning = false;
-                            app.items = app.scanner.get_items();
-                            app.stats = app.scanner.get_stats();
-                            app.scan_progress = String::new();
-                            cx.notify();
-                        }
-                    })
-                    .is_ok();
+            let should_continue = this
+                .update(cx, |app, cx| {
+                    if app.scanner.is_scanning() {
+                        app.is_scanning = true;
+                        let files_scanned = app.scanner.files_scanned();
+                        app.scan_progress = format!(
+                            "{} paths checked • {}",
+                            files_scanned,
+                            app.scanner.current_path()
+                        );
+                        cx.notify();
+                    } else if app.is_scanning {
+                        app.is_scanning = false;
+                        app.items = app.scanner.get_items();
+                        app.stats = app.scanner.get_stats();
+                        app.scan_progress = String::new();
+                        cx.notify();
+                    }
+                })
+                .is_ok();
 
-                if !should_continue {
-                    break;
-                }
+            if !should_continue {
+                break;
             }
         })
         .detach();
@@ -190,9 +188,7 @@ impl SweeperApp {
             FilterTab::TempLogs => self
                 .items
                 .iter()
-                .filter(|i| {
-                    matches!(i.category, FileCategory::TempFile | FileCategory::LogFile)
-                })
+                .filter(|i| matches!(i.category, FileCategory::TempFile | FileCategory::LogFile))
                 .collect(),
             FilterTab::Downloads => self
                 .items
@@ -218,7 +214,11 @@ impl SweeperApp {
     }
 
     fn select_all(&mut self, cx: &mut Context<Self>) {
-        let paths: Vec<PathBuf> = self.filtered_items().iter().map(|i| i.path.clone()).collect();
+        let paths: Vec<PathBuf> = self
+            .filtered_items()
+            .iter()
+            .map(|i| i.path.clone())
+            .collect();
         for path in paths {
             self.selected.insert(path);
         }
@@ -337,7 +337,11 @@ impl SweeperApp {
                             .flex()
                             .items_center()
                             .justify_center()
-                            .child(Icon::new("trash-2").size(px(24.0)).color(theme.tokens.primary)),
+                            .child(
+                                Icon::new("trash-2")
+                                    .size(px(24.0))
+                                    .color(theme.tokens.primary),
+                            ),
                     )
                     .child(
                         div()
@@ -440,7 +444,11 @@ impl SweeperApp {
                                             .text_color(theme.tokens.muted_foreground)
                                             .child("Total Found"),
                                     )
-                                    .child(Icon::new("hard-drive").size(px(18.0)).color(theme.tokens.primary)),
+                                    .child(
+                                        Icon::new("hard-drive")
+                                            .size(px(18.0))
+                                            .color(theme.tokens.primary),
+                                    ),
                             )
                             .child(
                                 div()
@@ -460,7 +468,9 @@ impl SweeperApp {
                                             .text_color(theme.tokens.muted_foreground)
                                             .child(format!("{} items", self.stats.total_items)),
                                     )
-                                    .child(Sparkline::area(size_distribution.clone()).size(adabraka_ui::components::sparkline::SparklineSize::Sm)),
+                                    .child(Sparkline::area(size_distribution.clone()).size(
+                                        adabraka_ui::components::sparkline::SparklineSize::Sm,
+                                    )),
                             ),
                     )
                     .flex_1()
@@ -485,7 +495,11 @@ impl SweeperApp {
                                             .text_color(theme.tokens.muted_foreground)
                                             .child("Selected"),
                                     )
-                                    .child(Icon::new("check-square").size(px(18.0)).color(theme.tokens.primary)),
+                                    .child(
+                                        Icon::new("check-square")
+                                            .size(px(18.0))
+                                            .color(theme.tokens.primary),
+                                    ),
                             )
                             .child(
                                 div()
@@ -510,7 +524,10 @@ impl SweeperApp {
                                             .child(format!("{} items", self.selected.len())),
                                     )
                                     .children(if !self.selected.is_empty() {
-                                        Some(Badge::new(format!("{:.0}%", selection_percent)).variant(BadgeVariant::Outline))
+                                        Some(
+                                            Badge::new(format!("{:.0}%", selection_percent))
+                                                .variant(BadgeVariant::Outline),
+                                        )
                                     } else {
                                         None
                                     }),
@@ -538,24 +555,34 @@ impl SweeperApp {
                                             .text_color(theme.tokens.muted_foreground)
                                             .child("Scan Time"),
                                     )
-                                    .child(Icon::new("clock").size(px(18.0)).color(theme.tokens.primary)),
+                                    .child(
+                                        Icon::new("clock")
+                                            .size(px(18.0))
+                                            .color(theme.tokens.primary),
+                                    ),
                             )
                             .child(
                                 div()
                                     .text_size(px(32.0))
                                     .font_weight(FontWeight::BOLD)
                                     .text_color(theme.tokens.foreground)
-                                    .child(format!("{:.1}s", self.stats.duration_ms as f64 / 1000.0)),
+                                    .child(format!(
+                                        "{:.1}s",
+                                        self.stats.duration_ms as f64 / 1000.0
+                                    )),
                             )
                             .child(
                                 div()
                                     .text_size(px(13.0))
                                     .text_color(theme.tokens.muted_foreground)
-                                    .child(if self.stats.duration_ms > 0 && self.stats.total_items > 0 {
-                                        format!("{} items found", self.stats.total_items)
-                                    } else {
-                                        "Ready to scan".to_string()
-                                    }),
+                                    .child(
+                                        if self.stats.duration_ms > 0 && self.stats.total_items > 0
+                                        {
+                                            format!("{} items found", self.stats.total_items)
+                                        } else {
+                                            "Ready to scan".to_string()
+                                        },
+                                    ),
                             ),
                     )
                     .flex_1()
@@ -610,7 +637,13 @@ impl SweeperApp {
                     })
                     .rounded(px(8.0))
                     .cursor_pointer()
-                    .hover(|s| s.bg(if is_active { theme.tokens.primary } else { theme.tokens.muted.opacity(0.5) }))
+                    .hover(|s| {
+                        s.bg(if is_active {
+                            theme.tokens.primary
+                        } else {
+                            theme.tokens.muted.opacity(0.5)
+                        })
+                    })
                     .on_click(cx.listener(move |this, _, _window, cx| {
                         this.active_tab = tab;
                         cx.notify();
@@ -830,7 +863,10 @@ impl SweeperApp {
                         .on_click(cx.listener(move |this, _, _window, cx| {
                             this.toggle_selection(path.clone(), cx);
                         }))
-                        .child(Checkbox::new(SharedString::from(format!("check-{}", path_str))).checked(is_selected))
+                        .child(
+                            Checkbox::new(SharedString::from(format!("check-{}", path_str)))
+                                .checked(is_selected),
+                        )
                         .child(
                             div()
                                 .size(px(40.0))
@@ -839,7 +875,11 @@ impl SweeperApp {
                                 .flex()
                                 .items_center()
                                 .justify_center()
-                                .child(Icon::new(category_icon(category)).size(px(20.0)).color(theme.tokens.primary)),
+                                .child(
+                                    Icon::new(category_icon(category))
+                                        .size(px(20.0))
+                                        .color(theme.tokens.primary),
+                                ),
                         )
                         .child(
                             div()
@@ -876,7 +916,11 @@ impl SweeperApp {
                                         .flex()
                                         .items_center()
                                         .gap(px(4.0))
-                                        .child(Icon::new("gauge").size(px(12.0)).color(theme.tokens.muted_foreground))
+                                        .child(
+                                            Icon::new("gauge")
+                                                .size(px(12.0))
+                                                .color(theme.tokens.muted_foreground),
+                                        )
                                         .child(
                                             div()
                                                 .text_size(px(12.0))
@@ -927,7 +971,11 @@ impl SweeperApp {
                                     .flex()
                                     .items_center()
                                     .justify_center()
-                                    .child(Icon::new("triangle-alert").size(px(24.0)).color(theme.tokens.destructive)),
+                                    .child(
+                                        Icon::new("triangle-alert")
+                                            .size(px(24.0))
+                                            .color(theme.tokens.destructive),
+                                    ),
                             )
                             .child(
                                 div()
@@ -962,7 +1010,11 @@ impl SweeperApp {
                                     .flex()
                                     .items_center()
                                     .gap(px(12.0))
-                                    .child(Icon::new("files").size(px(20.0)).color(theme.tokens.muted_foreground))
+                                    .child(
+                                        Icon::new("files")
+                                            .size(px(20.0))
+                                            .color(theme.tokens.muted_foreground),
+                                    )
                                     .child(
                                         div()
                                             .text_size(px(14.0))
@@ -970,9 +1022,7 @@ impl SweeperApp {
                                             .child(format!("{} items selected", selected_count)),
                                     ),
                             )
-                            .child(
-                                Badge::new(selected_size).variant(BadgeVariant::Outline),
-                            ),
+                            .child(Badge::new(selected_size).variant(BadgeVariant::Outline)),
                     )
                     .child(
                         div()
