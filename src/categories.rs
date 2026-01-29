@@ -32,23 +32,6 @@ impl FileCategory {
         }
     }
 
-    #[allow(dead_code)]
-    pub fn icon(&self) -> &'static str {
-        match self {
-            Self::DevArtifact => "code",
-            Self::PackageCache => "package",
-            Self::IdeCache => "cpu",
-            Self::BrowserCache => "globe",
-            Self::SystemCache => "hard-drive",
-            Self::LogFile => "file-text",
-            Self::TempFile => "file-x",
-            Self::LargeFile => "file-archive",
-            Self::OldDownload => "download",
-            Self::Duplicate => "copy",
-            Self::Unused => "clock",
-        }
-    }
-
     pub fn base_confidence(&self) -> f32 {
         match self {
             Self::TempFile => 0.95,
@@ -62,23 +45,6 @@ impl FileCategory {
             Self::LargeFile => 0.70,
             Self::Duplicate => 0.70,
             Self::Unused => 0.70,
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn description(&self) -> &'static str {
-        match self {
-            Self::DevArtifact => "Build outputs and dependencies (node_modules, target/, build/)",
-            Self::PackageCache => "Package manager caches (npm, cargo, pip, etc.)",
-            Self::IdeCache => "IDE and editor caches (VS Code, JetBrains, etc.)",
-            Self::BrowserCache => "Web browser cached data",
-            Self::SystemCache => "System and application caches",
-            Self::LogFile => "Application and system log files",
-            Self::TempFile => "Temporary files and directories",
-            Self::LargeFile => "Files larger than 100MB",
-            Self::OldDownload => "Downloaded files older than 30 days",
-            Self::Duplicate => "Files with identical content",
-            Self::Unused => "Files not accessed in 90+ days",
         }
     }
 }
@@ -327,10 +293,5 @@ impl CategoryPatterns {
 
     pub fn old_download_days() -> u64 {
         30
-    }
-
-    #[allow(dead_code)]
-    pub fn large_file_threshold() -> u64 {
-        100 * 1024 * 1024 // 100MB
     }
 }

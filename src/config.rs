@@ -148,16 +148,6 @@ impl Config {
         Self::default()
     }
 
-    #[allow(dead_code)]
-    pub fn save(&self) -> Result<(), std::io::Error> {
-        let config_path = Self::config_path();
-        if let Some(parent) = config_path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        let contents = serde_json::to_string_pretty(self)?;
-        std::fs::write(config_path, contents)
-    }
-
     fn config_path() -> PathBuf {
         dirs::config_dir()
             .unwrap_or_else(|| PathBuf::from("."))
