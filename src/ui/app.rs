@@ -669,17 +669,35 @@ impl SweeperApp {
                             })),
                     ),
             )
-            .child(
+            .child(if is_deleting {
+                div()
+                    .flex()
+                    .items_center()
+                    .gap(px(8.0))
+                    .px(px(16.0))
+                    .py(px(8.0))
+                    .bg(theme.tokens.destructive.opacity(0.8))
+                    .rounded(px(8.0))
+                    .child(Spinner::new())
+                    .child(
+                        div()
+                            .text_size(px(14.0))
+                            .font_weight(FontWeight::MEDIUM)
+                            .text_color(theme.tokens.destructive_foreground)
+                            .child("Deleting..."),
+                    )
+                    .into_any_element()
+            } else {
                 Button::new("delete", format!("Delete {} items", selected_count))
                     .variant(ButtonVariant::Destructive)
                     .icon("trash-2")
-                    .disabled(!has_selection || is_deleting)
-                    .loading(is_deleting)
+                    .disabled(!has_selection)
                     .on_click(cx.listener(|this, _, _window, cx| {
                         this.show_delete_dialog = true;
                         cx.notify();
-                    })),
-            )
+                    }))
+                    .into_any_element()
+            })
     }
 
     fn render_list(&self, cx: &Context<Self>) -> impl IntoElement {
@@ -909,7 +927,7 @@ impl SweeperApp {
                                     .flex()
                                     .items_center()
                                     .justify_center()
-                                    .child(Icon::new("alert-triangle").size(px(24.0)).color(theme.tokens.destructive)),
+                                    .child(Icon::new("triangle-alert").size(px(24.0)).color(theme.tokens.destructive)),
                             )
                             .child(
                                 div()

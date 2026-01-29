@@ -5,6 +5,8 @@ version = 4
 [[package]]
 name = "adabraka-ui"
 version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ecee8252e05f0a9cebe92d73290d5921e2fe45ecf80c64ca14bb5a8595f323e1"
 dependencies = [
  "bytes",
  "futures",
