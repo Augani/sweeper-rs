@@ -809,7 +809,7 @@ impl SweeperApp {
                 .children(items.into_iter().take(200).map(|item| {
                     let path = item.path.clone();
                     let is_selected = self.selected.contains(&path);
-                    let name = item.name.clone();
+                    let name: String = item.name.clone().into();
                     let category = item.category;
                     let category_name = category.name();
                     let path_str = item.path.to_string_lossy().to_string();

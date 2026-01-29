@@ -4,25 +4,19 @@ use bytesize::ByteSize;
 use chrono::{DateTime, Duration, Utc};
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use walkdir::WalkDir;
 
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub struct ScannedItem {
     pub path: PathBuf,
-    pub name: String,
+    pub name: Box<str>,
     pub size: u64,
     pub category: FileCategory,
     pub confidence: f32,
-    pub is_dir: bool,
-    pub modified: DateTime<Utc>,
-    pub accessed: DateTime<Utc>,
     pub is_stale: bool,
-    pub hash: Option<String>,
 }
 
 impl ScannedItem {
@@ -154,28 +148,17 @@ impl Scanner {
 
                     if let Ok(size) = Self::dir_size_parallel(&path) {
                         if size > 0 {
-                            let meta = fs::metadata(&path).ok();
-                            let modified = meta
-                                .as_ref()
-                                .and_then(|m| m.modified().ok())
-                                .map(DateTime::<Utc>::from)
-                                .unwrap_or_else(Utc::now);
-
                             let item = ScannedItem {
                                 path: path.clone(),
                                 name: path
                                     .file_name()
                                     .unwrap_or_default()
                                     .to_string_lossy()
-                                    .to_string(),
+                                    .into(),
                                 size,
                                 category,
                                 confidence: category.base_confidence(),
-                                is_dir: true,
-                                modified,
-                                accessed: modified,
                                 is_stale: false,
-                                hash: None,
                             };
 
                             self.add_item(item);
@@ -221,24 +204,13 @@ impl Scanner {
 
                 if let Ok(size) = Self::dir_size_parallel(entry.path()) {
                     if size > 1024 * 1024 {
-                        let meta = entry.metadata().ok();
-                        let modified = meta
-                            .as_ref()
-                            .and_then(|m| m.modified().ok())
-                            .map(DateTime::<Utc>::from)
-                            .unwrap_or_else(Utc::now);
-
                         let item = ScannedItem {
                             path: entry.path().to_path_buf(),
-                            name: entry.file_name().to_string_lossy().to_string(),
+                            name: entry.file_name().to_string_lossy().into(),
                             size,
                             category: FileCategory::SystemCache,
                             confidence: FileCategory::SystemCache.base_confidence(),
-                            is_dir: true,
-                            modified,
-                            accessed: modified,
                             is_stale: false,
-                            hash: None,
                         };
 
                         self.add_item(item);
@@ -319,12 +291,6 @@ impl Scanner {
                         if let Ok(meta) = entry.metadata() {
                             let size = meta.len();
                             if size > 0 {
-                                let modified = meta
-                                    .modified()
-                                    .ok()
-                                    .map(DateTime::<Utc>::from)
-                                    .unwrap_or_else(Utc::now);
-
                                 let category = if is_temp {
                                     FileCategory::TempFile
                                 } else {
@@ -333,15 +299,11 @@ impl Scanner {
 
                                 let item = ScannedItem {
                                     path: entry.path().to_path_buf(),
-                                    name: name.to_string(),
+                                    name: name.to_string().into_boxed_str(),
                                     size,
                                     category,
                                     confidence: category.base_confidence(),
-                                    is_dir: false,
-                                    modified,
-                                    accessed: modified,
                                     is_stale: false,
-                                    hash: None,
                                 };
 
                                 self.add_item(item);
@@ -374,15 +336,11 @@ impl Scanner {
 
                     let item = ScannedItem {
                         path: path.clone(),
-                        name: name.clone(),
+                        name: name.clone().into_boxed_str(),
                         size,
                         category: FileCategory::DevArtifact,
                         confidence,
-                        is_dir: true,
-                        modified,
-                        accessed: modified,
                         is_stale,
-                        hash: None,
                     };
 
                     self.add_item(item);
@@ -437,15 +395,11 @@ impl Scanner {
 
                     let item = ScannedItem {
                         path: entry.path().to_path_buf(),
-                        name: entry.file_name().to_string_lossy().to_string(),
+                        name: entry.file_name().to_string_lossy().into(),
                         size,
                         category: FileCategory::OldDownload,
                         confidence,
-                        is_dir: false,
-                        modified,
-                        accessed: modified,
                         is_stale,
-                        hash: None,
                     };
 
                     self.add_item(item);
